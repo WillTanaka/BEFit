@@ -16,9 +16,9 @@ router.get('/login', (req, res) => {
 
 // Rota para processar o formulário de login
 router.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === process.env.USERNAME && password === process.env.PASSWORD) {
-        req.session.user = username;
+    const { user_name, password } = req.body;
+    if (user_name === process.env.USER_NAME && password === process.env.PASSWORD) {
+        req.session.user = user_name;
         res.redirect('/home');
     } else {
         res.redirect('/login');

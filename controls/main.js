@@ -37,6 +37,11 @@ router.get('/home', isAuthenticated, (req, res) => {
     res.render('home');
 });
 
+// Rota para exibir a página de newPage (apenas para usuários autenticados)
+router.get('/newPage', isAuthenticated, (req, res) => {
+    res.render('newPage');
+});
+
 // Rota para fazer logout
 router.get('/logout', (req, res) => {
     req.session.destroy();

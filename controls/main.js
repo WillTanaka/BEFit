@@ -5,10 +5,6 @@ router.get("/", (req, res) => {
     res.render("index")
 })
 
-router.get("/home", (req, res) => {
-    res.render("home")
-});
-
 // Rota para exibir a página de login
 router.get('/login', (req, res) => {
     res.render('login');
@@ -25,12 +21,29 @@ router.post('/login', (req, res) => {
     }
 });
 
+// Middleware para verificar se o usuário está autenticado
+function isAuthenticated(req, res, next) {
+    if (req.session.user) {
+        // Usuário autenticado, continue para a próxima rota
+        next();
+    } else {
+        // Usuário não autenticado, redirecione para a página de login
+        res.redirect('/login');
+    }
+}
+
+// Rota para exibir a página de home (apenas para usuários autenticados)
+router.get('/home', isAuthenticated, (req, res) => {
+    res.render('home');
+});
+
 // Rota para fazer logout
 router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
 
+// Rota para exibir a página de pages
 router.get("/pages", (req, res) => {
     res.render("pages")
 });

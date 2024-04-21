@@ -18,7 +18,9 @@
       <h2>{{title}}</h2>
       <p>{{content}}</p>
       <a href="/pages/{{id}}/edit">Editar</a>
-      <a href="/pages/{{id}}/delete">Excluir</a>
+      <form action="/pages/{{id}}/delete" method="post" style="display: inline;">
+        <button type="submit">Excluir</button>
+      </form>
     </li>
   {{/pages}}
 </ul>

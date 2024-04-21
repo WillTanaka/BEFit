@@ -89,10 +89,10 @@ router.post('/pages/:id/edit', (req, res) => {
 });
 
 // Rota para remover uma página existente
-router.delete('/pages/:id', (req, res) => {
+router.post('/pages/:id/delete', (req, res) => {
     const { id } = req.params;
     pages = pages.filter(page => page.id !== Number(id));
-    res.status(204).end();
+    res.redirect('/pages'); // Redireciona para a lista de páginas após a exclusão
 });
 
 module.exports = router

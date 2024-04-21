@@ -63,15 +63,26 @@ router.get('/pages', (req, res) => {
     res.render("pages", { pages: pages });
 });
 
+// Rota para exibir a página de edição (apenas para usuários autenticados)
+router.get('/pages/:id/edit', isAuthenticated, (req, res) => {
+    const { id } = req.params;
+    const page = pages.find(page => page.id === Number(id));
+    if (page) {
+        res.render('editPage', { page: page });
+    } else {
+        res.status(404).json({ message: 'Página não encontrada' });
+    }
+});
+
 // Rota para editar uma página existente
-router.put('/pages/:id', (req, res) => {
+router.post('/pages/:id/edit', (req, res) => {
     const { id } = req.params;
     const { title, content } = req.body;
     let page = pages.find(page => page.id === Number(id));
     if (page) {
         page.title = title;
         page.content = content;
-        res.json(page);
+        res.redirect('/pages'); // Redireciona para a lista de páginas após a edição
     } else {
         res.status(404).json({ message: 'Página não encontrada' });
     }

@@ -75,7 +75,7 @@ router.get('/pages/:id/edit', isAuthenticated, (req, res) => {
 });
 
 // Rota para editar uma página existente
-router.post('/pages/:id/edit', (req, res) => {
+router.post('/pages/:id/edit', isAuthenticated, (req, res) => {
     const { id } = req.params;
     const { title, content } = req.body;
     let page = pages.find(page => page.id === Number(id));
@@ -89,7 +89,7 @@ router.post('/pages/:id/edit', (req, res) => {
 });
 
 // Rota para remover uma página existente
-router.post('/pages/:id/delete', (req, res) => {
+router.post('/pages/:id/delete', isAuthenticated, (req, res) => {
     const { id } = req.params;
     pages = pages.filter(page => page.id !== Number(id));
     res.redirect('/pages'); // Redireciona para a lista de páginas após a exclusão

@@ -48,9 +48,40 @@ router.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// Rota para exibir a página de pages
-router.get("/pages", (req, res) => {
-    res.render("pages")
+let pages = [];
+
+// Rota para criar uma nova página
+router.post('/pages', (req, res) => {
+    const { title, content } = req.body;
+    const newPage = { id: Date.now(), title, content };
+    pages.push(newPage);
+    res.redirect('/pages'); // Redireciona para a lista de páginas após a criação
+});
+
+// Rota para listar todas as páginas
+router.get('/pages', (req, res) => {
+    res.render("pages", { pages: pages });
+});
+
+// Rota para editar uma página existente
+router.put('/pages/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    let page = pages.find(page => page.id === Number(id));
+    if (page) {
+        page.title = title;
+        page.content = content;
+        res.json(page);
+    } else {
+        res.status(404).json({ message: 'Página não encontrada' });
+    }
+});
+
+// Rota para remover uma página existente
+router.delete('/pages/:id', (req, res) => {
+    const { id } = req.params;
+    pages = pages.filter(page => page.id !== Number(id));
+    res.status(204).end();
 });
 
 module.exports = router

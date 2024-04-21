@@ -12,10 +12,10 @@
 </head>
 <body>
 <h1>Editar Página</h1>
-<form action="/pages/{{page.id}}/edit" method="post">
+<form action="/{{page.url}}/edit" method="post">
   <div class="mb-3">
-    <label for="title" class="form-label">Título</label>
-    <input type="text" class="form-control" id="title" name="title" value="{{page.title}}" required>
+    <label for="url" class="form-label">URL</label>
+    <input type="text" class="form-control" id="url" name="url" value="{{page.url}}" disabled>
   </div>
   <div class="mb-3">
     <label for="content" class="form-label">Conteúdo</label>

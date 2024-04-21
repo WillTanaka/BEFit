@@ -15,10 +15,10 @@
 <ul>
   {{#pages}}
     <li>
-      <h2>{{title}}</h2>
+      <h2><a href="/{{url}}">{{url}}</a></h2>
       <p>{{content}}</p>
-      <a href="/pages/{{id}}/edit">Editar</a>
-      <form action="/pages/{{id}}/delete" method="post" style="display: inline;">
+      <a href="/{{url}}/edit">Editar</a>
+      <form action="/{{url}}/delete" method="post" style="display: inline;">
         <button type="submit">Excluir</button>
       </form>
     </li>

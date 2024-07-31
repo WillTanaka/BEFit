@@ -1,22 +1,50 @@
-const express = require('express')
-const router = express.Router()
-const fs = require('fs')
-const path = require('path')
+const express = require('express');
+const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 
+let pages = []; // Inicializando uma lista vazia para guardar informações sobre as páginas
+
+// Função para carregar todas as páginas do diretório
+function loadPages() {
+    const pagesDir = path.join(__dirname, '../public/pages'); // Caminho para o diretório onde as páginas são armazenadas
+    fs.readdir(pagesDir, (err, files) => { // Lendo o conteúdo do diretório para obter a lista de arquivos
+        if (err) {
+            console.error("Erro ao ler o diretório de páginas:", err);
+            return;
+        }
+        pages = []; // Limpando a lista de páginas antes de carregar novas páginas
+
+        files.forEach((file) => { // Percorre arquivo por arquivo no diretório            
+            const filePath = path.join(pagesDir, file); // Cria o caminho completo para o arquivo            
+            fs.readFile(filePath, (err, content) => { // Lendo o conteúdo do arquivo
+                if (err) {
+                    console.error(`Erro ao ler o arquivo ${file}:`, err);
+                } else {
+                    const url = path.basename(file, '.txt'); // Criando um objeto para a página com um identificador único e o conteúdo
+                    pages.push({ id: Date.now(), url, content });
+                }
+            });
+        });
+    });
+}
+loadPages(); // Carregando as páginas quando o servidor inicia
+
+// Rota para a página inicial
 router.get("/", (req, res) => {
-    res.render("index")
-})
+    res.render("index");
+});
 
-// Rota para exibir a página de login
+// Rota para a página de login
 router.get('/login', (req, res) => {
     res.render('login');
 });
 
-// Rota para processar o formulário de login
+// Processa o formulário de login
 router.post('/login', (req, res) => {
-    const { user_name, password } = req.body;
-    if (user_name === process.env.USER_NAME && password === process.env.PASSWORD) {
-        req.session.user = user_name;
+    const { user_name, password } = req.body; // Obtendo o nome de usuário e a senha do corpo da solicitação     
+    if (user_name === process.env.USER_NAME && password === process.env.PASSWORD) { // Verificando se o nome de usuário e a senha estão corretos
+        req.session.user = user_name; // Salvando o usuário na sessão
         res.redirect('/home');
     } else {
         res.redirect('/login');
@@ -25,49 +53,43 @@ router.post('/login', (req, res) => {
 
 // Middleware para verificar se o usuário está autenticado
 function isAuthenticated(req, res, next) {
-    if (req.session.user) {
-        // Usuário autenticado, continue para a próxima rota
+    if (req.session.user) { // Se o usuário estiver autenticado, passa para a próxima função
         next();
     } else {
-        // Usuário não autenticado, redirecione para a página de login
         res.redirect('/login');
     }
 }
 
-// Rota para exibir a página de home (apenas para usuários autenticados)
+// Rota para a página inicial dos usuários autenticados
 router.get('/home', isAuthenticated, (req, res) => {
     res.render('home');
 });
 
-// Rota para exibir a página de newPage (apenas para usuários autenticados)
+// Rota para a página de criação de nova página
 router.get('/newPage', isAuthenticated, (req, res) => {
     res.render('newPage');
 });
 
 // Rota para fazer logout
 router.get('/logout', (req, res) => {
-    req.session.destroy();
+    req.session.destroy(); // Destroi a sessão do usuário
     res.redirect('/login');
 });
 
-let pages = [];
-
 // Rota para criar uma nova página
 router.post('/pages', (req, res) => {
-    const { url, content } = req.body;
-    const newPage = { id: Date.now(), url, content };
-    pages.push(newPage);
+    const { url, content } = req.body; // Obtendo a URL e o conteúdo da nova página do corpo da solicitação
+    const newPage = { id: Date.now(), url, content }; // Cria um objeto para a nova página
 
-    // Cria um novo arquivo de texto com o conteúdo da página
-    fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), content, err => {
+    // Cria um novo arquivo com o conteúdo da página
+    fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), content, (err) => {
         if (err) {
-            console.error(err)
-            return
+            console.error("Erro ao criar arquivo de página:", err);
+        } else {
+            loadPages(); // Atualiza a lista de páginas após a criação do arquivo
+            res.redirect('/pages');
         }
-        // Arquivo criado com sucesso
-    })
-
-    res.redirect('/pages'); // Redireciona para a lista de páginas após a criação
+    });
 });
 
 // Rota para listar todas as páginas
@@ -75,28 +97,21 @@ router.get('/pages', (req, res) => {
     res.render("pages", { pages: pages });
 });
 
+// Rota para exibir o conteúdo da página
 router.get('/:url', (req, res) => {
-    const { url } = req.params;
-    const page = pages.find(page => page.url === url);
+    const { url } = req.params; // Obtendo a URL da página dos parâmetros da solicitação
+    const page = pages.find(page => page.url === url); // Encontra a página na lista de páginas
     if (page) {
-        // Lê o conteúdo do arquivo de texto da página
-        fs.readFile(path.join(__dirname, '../public/pages', `${url}.txt`), 'utf8', (err, data) => {
-            if (err) {
-                console.error(err)
-                return
-            }
-            // Renderiza o conteúdo da página diretamente
-            res.send(data);
-        })
+        res.send(page.content); // Envia o conteúdo da página como resposta
     } else {
         res.status(404).json({ message: 'Página não encontrada' });
     }
 });
 
-// Rota para exibir a página de edição (apenas para usuários autenticados)
+// Rota para exibir a página de edição para usuários autenticados
 router.get('/:url/edit', isAuthenticated, (req, res) => {
-    const { url } = req.params;
-    const page = pages.find(page => page.url === url);
+    const { url } = req.params; // Obtendo a URL da página dos parâmetros da solicitação
+    const page = pages.find(page => page.url === url); // Encontra a página na lista de páginas
     if (page) {
         res.render('editPage', { page: page });
     } else {
@@ -106,22 +121,19 @@ router.get('/:url/edit', isAuthenticated, (req, res) => {
 
 // Rota para editar uma página existente
 router.post('/:url/edit', isAuthenticated, (req, res) => {
-    const { url } = req.params;
-    const { content } = req.body;
-    let page = pages.find(page => page.url === url);
+    const { url } = req.params; // Obtendo a URL da página dos parâmetros da solicitação
+    const { content } = req.body; // Obtendo o novo conteúdo da página do corpo da solicitação
+    let page = pages.find(page => page.url === url); // Encontra a página na lista de páginas
     if (page) {
-        page.content = content;
-
-        // Atualiza o arquivo de texto com o novo conteúdo da página
-        fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), content, err => {
+        page.content = content; // Atualizando o conteúdo da página
+        fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), content, (err) => { // Atualizando o arquivo com o novo conteúdo
             if (err) {
-                console.error(err)
-                return
+                console.error("Erro ao atualizar o arquivo de página:", err);
+            } else {
+                loadPages(); // Atualizando a lista de páginas após a edição do arquivo
+                res.redirect('/pages');
             }
-            // Arquivo atualizado com sucesso
-        })
-
-        res.redirect('/pages'); // Redireciona para a lista de páginas após a edição
+        });
     } else {
         res.status(404).json({ message: 'Página não encontrada' });
     }
@@ -129,19 +141,15 @@ router.post('/:url/edit', isAuthenticated, (req, res) => {
 
 // Rota para remover uma página existente
 router.post('/:url/delete', isAuthenticated, (req, res) => {
-    const { url } = req.params;
-    pages = pages.filter(page => page.url !== url);
-
-    // Remove o arquivo de texto da página
-    fs.unlink(path.join(__dirname, '../public/pages', `${url}.txt`), err => {
+    const { url } = req.params; // Obtendo a URL da página dos parâmetros da solicitação
+    pages = pages.filter(page => page.url !== url); // Removendo a página da lista de páginas
+    fs.unlink(path.join(__dirname, '../public/pages', `${url}.txt`), (err) => { // Remove o arquivo .txt da página no caminho
         if (err) {
-            console.error(err)
-            return
+            console.error("Erro ao remover o arquivo de página:", err);
+        } else {
+            res.redirect('/pages');
         }
-        // Arquivo removido com sucesso
-    })
-
-    res.redirect('/pages'); // Redireciona para a lista de páginas após a exclusão
+    });
 });
 
-module.exports = router
+module.exports = router;

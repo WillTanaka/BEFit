@@ -79,3 +79,11 @@ button{
 #btn-cancel{
     background-color: #08a7c4;
 }
+
+#btn-criar:hover{
+    background-color: #ec4c82;
+}
+
+#btn-cancel:hover{
+    background-color: #0CC0DF;
+}

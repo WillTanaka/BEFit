@@ -17,12 +17,18 @@ function loadPages() {
 
         files.forEach((file) => { // Percorre arquivo por arquivo no diretório            
             const filePath = path.join(pagesDir, file); // Cria o caminho completo para o arquivo            
-            fs.readFile(filePath, (err, content) => { // Lendo o conteúdo do arquivo
+            fs.readFile(filePath, 'utf8', (err, fileContent) => { // Lendo o conteúdo do arquivo
                 if (err) {
                     console.error(`Erro ao ler o arquivo ${file}:`, err);
                 } else {
-                    const url = path.basename(file, '.txt'); // Criando um objeto para a página com um identificador único e o conteúdo
-                    pages.push({ id: Date.now(), url, content });
+                    try {
+                        // Parseando o conteúdo JSON do arquivo para obter conteúdo e categoria
+                        const { content, category } = JSON.parse(fileContent);
+                        const url = path.basename(file, '.txt'); // Criando um objeto para a página com um identificador único e o conteúdo
+                        pages.push({ id: Date.now(), url, content, category: category || 'default' });
+                    } catch (e) {
+                        console.error(`Erro ao parsear o conteúdo do arquivo ${file}:`, e);
+                    }                  
                 }
             });
         });
@@ -78,11 +84,13 @@ router.get('/logout', (req, res) => {
 
 // Rota para criar uma nova página
 router.post('/pages', (req, res) => {
-    const { url, content } = req.body; // Obtendo a URL e o conteúdo da nova página do corpo da solicitação
-    const newPage = { id: Date.now(), url, content }; // Cria um objeto para a nova página
+    const { url, content, category } = req.body; // Obtendo a URL, o conteúdo e a categoria da nova página do corpo da solicitação
+    const newPage = { id: Date.now(), url, content, category: category || 'default' }; // Cria um objeto para a nova página
 
-    // Cria um novo arquivo com o conteúdo da página
-    fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), content, (err) => {
+    // Cria um novo arquivo com o conteúdo e a categoria da página 
+    const fileContent = JSON.stringify({ content, category });
+
+    fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), fileContent, (err) => {
         if (err) {
             console.error("Erro ao criar arquivo de página:", err);
         } else {
@@ -122,11 +130,13 @@ router.get('/:url/edit', isAuthenticated, (req, res) => {
 // Rota para editar uma página existente
 router.post('/:url/edit', isAuthenticated, (req, res) => {
     const { url } = req.params; // Obtendo a URL da página dos parâmetros da solicitação
-    const { content } = req.body; // Obtendo o novo conteúdo da página do corpo da solicitação
+    const { content, category } = req.body; // Obtendo o novo conteúdo e categoria da página do corpo da solicitação
     let page = pages.find(page => page.url === url); // Encontra a página na lista de páginas
     if (page) {
         page.content = content; // Atualizando o conteúdo da página
-        fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), content, (err) => { // Atualizando o arquivo com o novo conteúdo
+        page.category = category; // Atualizando a categoria da página
+        const fileContent = JSON.stringify({ content, category }); // Cria um objeto JSON com o conteúdo e categoria atualizados
+        fs.writeFile(path.join(__dirname, '../public/pages', `${url}.txt`), fileContent, (err) => { // Atualizando o arquivo com o novo conteúdo e categoria
             if (err) {
                 console.error("Erro ao atualizar o arquivo de página:", err);
             } else {

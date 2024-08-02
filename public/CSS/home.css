@@ -1,4 +1,4 @@
-* * {
+*  {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -34,7 +34,7 @@ img{
     padding: 25px;
     display: flex;
     flex-direction: column;
-    /align-items: center;/
+    
 }
 
 h1{

@@ -98,3 +98,14 @@ form button {
 form button:hover {
     background-color: #ec4c82;
 }
+/* Estilos para alinhar a categoria e seu conteúdo na mesma linha */
+.categoria {
+    display: flex;
+    align-items: center;
+}
+
+.categoria h6, .categoria p {
+    margin: 0;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}

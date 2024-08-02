@@ -14,6 +14,18 @@ body {
     align-items: center;
 }
 
+/* Estilos especificos para o cabeçalho */
+header{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 20px 15px;
+}
+
+img{
+    height: 70px;
+}
+
 h1 {
     text-align: center;
     font-size: 40px;
@@ -23,12 +35,13 @@ h1 {
 /* Container que contém o formulário */
 .container-principal {
     width: 800px;
+    height: 450px;
     padding: 18px 35px;
     margin-bottom: 20px;
     background-color: #3d4042;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Garantir que os elementos fiquem no início */
+    justify-content: flex-start;
 }
 
 label {
@@ -41,7 +54,7 @@ label {
     margin-bottom: 10px;
 }
 
-/* Botões */
+/* Estilos para os botões */
 .buttons {
     display: flex;
     justify-content: flex-end;
@@ -61,18 +74,18 @@ button {
     cursor: pointer;
 }
 
-.btn-primary {
+#btn-salvar{
     background-color: #f0296c;
 }
 
-.btn-secondary {
+#btn-cancela{
     background-color: #08a7c4;
 }
 
-.btn-primary:hover {
+#btn-salvar:hover{
     background-color: #ec4c82;
 }
 
-.btn-secondary:hover {
+#btn-cancela:hover{
     background-color: #0CC0DF;
 }

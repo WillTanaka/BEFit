@@ -24,6 +24,10 @@
         <li>
           <h2><a href="/{{url}}">{{url}}</a></h2>
           <p>{{content}}</p>
+          <div class="categoria">
+            <h6>Categoria: </h6>
+            <p>{{category}}</p>
+          </div>
           <a href="/{{url}}/edit">Editar</a>
           <form action="/{{url}}/delete" method="post" style="display: inline;">
             <button type="submit">Excluir</button>

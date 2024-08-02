@@ -14,6 +14,7 @@ body {
     align-items: center;
 }
 
+/* Estilos especificos para o cabeçalho */
 header{
     display: flex;
     align-items: center;

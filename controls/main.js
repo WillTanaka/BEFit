@@ -53,7 +53,7 @@ router.post('/login', (req, res) => {
         req.session.user = user_name; // Salvando o usuário na sessão
         res.redirect('/home');
     } else {
-        res.redirect('/login');
+        res.render('login', { error: 'Usuário ou senha incorretos' });
     }
 });
 

@@ -1,1 +1,1 @@
-{"content":"Seja bem vindo ao PTGW CMS.","category":"1"}
+{"content":"Seja bem vindo ao PTGW CMS.","category":"teste"}
